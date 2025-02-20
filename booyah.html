@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BooYah! Fan Club</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Arial', sans-serif; /* Replace with BooYah's font if available (e.g., Roboto) */
+            background-color: #1a1a1a;
+            color: #fff;
+            font-size: 14px;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .top-nav {
+            background-color: #2c2c2c;
+            padding: 5px 15px;
+            border-bottom: 1px solid #444;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 40px;
+        }
+        .top-nav .tabs {
+            display: flex;
+            gap: 10px;
+        }
+        .top-nav .tab {
+            color: #ccc;
+            text-decoration: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+        .top-nav .tab:hover, .top-nav .tab.active {
+            background-color: #444;
+            color: #fff;
+            border-bottom: 2px solid #ffd700;
+        }
+        .top-nav .right-icons {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .top-nav .right-icons span {
+            font-size: 18px;
+            cursor: pointer;
+        }
+        .top-nav .right-icons .notification {
+            position: relative;
+        }
+        .top-nav .right-icons .notification::after {
+            content: '3';
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: #ff4d4d;
+            color: #fff;
+            font-size: 10px;
+            border-radius: 50%;
+            width: 12px;
+            height: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            display: flex;
+            height: calc(100vh - 40px);
+        }
+        .sidebar {
+            width: 250px;
+            background-color: #2c2c2c;
+            padding: 10px 0;
+            border-right: 1px solid #444;
+            overflow-y: auto;
+        }
+        .sidebar .server {
+            color: #ffd700;
+            font-size: 16px;
+            font-weight: bold;
+            margin: 0 0 10px 15px;
+            display: flex;
+            align-items: center;
+            padding: 5px 0;
+        }
+        .sidebar .server .icon {
+            width: 20px;
+            height: 20px;
+            background-color: #444;
+            border-radius: 50%;
+            margin-right: 5px;
+            display: inline-block;
+            overflow: hidden;
+        }
+        .sidebar .server span.stats {
+            font-size: 12px;
+            color: #888;
+            margin-left: 5px;
+        }
+        .sidebar .channels {
+            margin-top: 10px;
+        }
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .sidebar li {
+            padding: 8px 15px;
+            border-bottom: 1px solid #444;
+            cursor: pointer;
+            color: #ccc;
+            display: flex;
+            align-items: center;
+            transition: background-color 0.3s, color 0.3s;
+            position: relative;
+        }
+        .sidebar li:hover, .sidebar .active {
+            background-color: #444;
+            color: #fff;
+        }
+        .sidebar li::before {
+            content: '•';
+            margin-right: 10px;
+            color: #ffd700;
+            font-size: 8px;
+        }
+        .sidebar li.active::after {
+            content: '';
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 0;
+            height: 0;
+            border-top: 5px solid transparent;
+            border-bottom: 5px solid transparent;
+            border-right: 5px solid #ffd700;
+        }
+        .sidebar .channel-icon {
+            width: 16px;
+            height: 16px;
+            background-color: #444;
+            border-radius: 50%;
+            margin-right: 5px;
+            display: inline-block;
+            overflow: hidden;
+        }
+        .channel-icon.red { background-color: #ff4d4d; }
+        .channel-icon.yellow { background-color: #ffd700; }
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            background-color: #2c2c2c;
+            padding: 10px;
+            border-bottom: 1px solid #444;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 50px;
+        }
+        .header h1 {
+            color: #ffd700;
+            font-size: 20px;
+            font-weight: bold;
+            margin: 0;
+        }
+        .header .online {
+            color: #ccc;
+            font-size: 12px;
+        }
+        .chat-area {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background-color: #1a1a1a;
+        }
+        .message {
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #333;
+            border-radius: 5px;
+            max-width: 70%;
+            word-wrap: break-word;
+            display: flex;
+            align-items: flex-start;
+        }
+        .message .user-info {
+            display: flex;
+            align-items: center;
+            margin-right: 10px;
+        }
+        .message .user {
+            color: #ffd700;
+            font-weight: bold;
+            margin-left: 5px;
+            cursor: pointer;
+        }
+        .message .time {
+            color: #888;
+            font-size: 12px;
+            margin-left: 5px;
+        }
+        .message .avatar {
+            width: 20px;
+            height: 20px;
+            background-color: #444;
+            border-radius: 50%;
+            margin-right: 5px;
+            display: inline-block;
+            overflow: hidden;
+        }
+        .message.deleted {
+            color: #888;
+            font-style: italic;
+            background-color: #2c2c2c;
+        }
+        .message.moderation {
+            background-color: #2c2c2c;
+            border: 1px solid #ffd700;
+            color: #fff;
+        }
+        .input-area {
+            padding: 10px;
+            background-color: #2c2c2c;
+            border-top: 1px solid #444;
+            display: flex;
+            align-items: center;
+            height: 60px;
+        }
+        .input-area input {
+            flex: 1;
+            padding: 8px;
+            background-color: #444;
+            border: none;
+            color: #fff;
+            border-radius: 5px;
+            font-size: 14px;
+            margin-right: 10px;
+        }
+        .input-area button {
+            padding: 8px 15px;
+            background-color: #ffd700;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            color: #1a1a1a;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .user-list {
+            width: 200px;
+            background-color: #2c2c2c;
+            padding: 10px;
+            border-left: 1px solid #444;
+            overflow-y: auto;
+        }
+        .user-list ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .user-list li {
+            padding: 5px 0;
+            color: #ccc;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+        }
+        .user-list .moderator {
+            color: #ffd700;
+            font-weight: bold;
+        }
+        .user-list .avatar {
+            width: 20px;
+            height: 20px;
+            background-color: #444;
+            border-radius: 50%;
+            margin-right: 5px;
+            display: inline-block;
+            overflow: hidden;
+        }
+        .user-list .moderator .avatar {
+            border: 2px solid #ffd700;
+        }
+        .profile-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #2c2c2c;
+            border: 1px solid #444;
+            border-radius: 5px;
+            padding: 20px;
+            z-index: 1000;
+            display: none;
+            width: 300px;
+        }
+        .profile-popup h2 {
+            color: #ffd700;
+            margin-bottom: 15px;
+        }
+        .profile-popup input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            background-color: #444;
+            border: none;
+            color: #fff;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        .profile-popup input[type="file"] {
+            margin-bottom: 10px;
+        }
+        .profile-popup .preview {
+            width: 100px;
+            height: 100px;
+            background-color: #444;
+            border-radius: 50%;
+            margin-bottom: 10px;
+            overflow: hidden;
+        }
+        .profile-popup button {
+            padding: 8px 15px;
+            background-color: #ffd700;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            color: #1a1a1a;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 999;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="top-nav">
+        <div class="tabs">
+            <a href="#" class="tab">Inicio</a>
+            <a href="#" class="tab">Examinar</a>
+            <a href="#" class="tab active">Clubes</a>
+            <a href="#" class="tab">Juegos</a>
+            <a href="#" class="tab">Clips</a>
+        </div>
+        <div class="right-icons">
+            <span>🔍</span>
+            <span class="notification">🔔</span>
+            <span class="profile-icon" onclick="showProfilePopup()">👤</span>
+        </div>
+    </div>
+    <div class="container">
+        <div class="sidebar">
+            <div class="server">
+                <span class="icon"></span> Free Fire Fan Club
+                <span class="stats">4905 | 156,236 integrantes</span>
+            </div>
+            <div class="channels">
+                <ul>
+                    <li class="active"><span class="channel-icon"></span> VEN Y CHARLA</li>
+                    <li><span class="channel-icon"></span> PROMOCIONA TU CANAL...</li>
+                    <li><span class="channel-icon"></span> REGLAS</li>
+                    <li><span class="channel-icon"></span> EVENTOS DEL DÍA</li>
+                    <li><span class="channel-icon"></span> !EVENTOS!</li>
+                    <li><span class="channel-icon"></span> OPINA 😊</li>
+                    <li><span class="channel-icon"></span> -GANADORES DINÁMICAS-</li>
+                    <li><span class="channel-icon red"></span> -GANADORES CLIPS-</li>
+                    <li><span class="channel-icon yellow"></span> -DINÁMICAS-</li>
+                </ul>
+            </div>
+        </div>
+        <div class="main-content">
+            <div class="header">
+                <h1>BooYah!</h1>
+                <div class="online">En línea: Ale SanLo</div>
+            </div>
+            <div class="chat-area" id="chatArea">
+                <div class="message moderation">
+                    <span class="user">Moderación</span>: Mensaje anclado. Recuerden no dar ni solicitar info personal, tampoco sobrevinientes. Un ambiente familiar y respetuoso, ¡muchas gracias!
+                </div>
+                <div class="message deleted">
+                    <span class="user">leonvalente</span> <span class="time">(19:09)</span>: (Este mensaje se eliminó)
+                </div>
+                <div class="message">
+                    <div class="user-info">
+                        <span class="avatar"></span>
+                        <span class="user" onclick="showProfilePopup()">prohibido</span>
+                    </div>
+                    hacer spam dentro de cualquier canal <span class="time">(19:10)</span>
+                </div>
+                <div class="message">
+                    <div class="user-info">
+                        <span class="avatar"></span>
+                        <span class="user" onclick="showProfilePopup()">Night Owl</span>
+                    </div>
+                    suspendido <span class="time">(19:10)</span>
+                </div>
+            </div>
+            <div class="input-area">
+                <input type="text" id="messageInput" placeholder="Escribe tu mensaje">
+                <button onclick="sendMessage()">Enviar</button>
+            </div>
+        </div>
+        <div class="user-list">
+            <ul>
+                <li class="moderator"><span class="avatar"></span> Ale SanLo - Moderación</li>
+                <li class="moderator"><span class="avatar"></span> Asimov - Moderación</li>
+                <li class="moderator"><span class="avatar"></span> Night Owl - Moderación</li>
+                <li><span class="avatar"></span> Icarlos5</li>
+                <li><span class="avatar"></span> Isive</li>
+                <li><span class="avatar"></span> I-Tremendo!</li>
+                <li><span class="avatar"></span> DANIELA<3</li>
+                <li><span class="avatar"></span> "DRAGON."</li>
+                <li><span class="avatar"></span> "J.Tatto"</li>
+                <li><span class="avatar"></span> "TOXIC1543G</li>
+                <li><span class="avatar"></span> #DHEIMMM##</li>
+                <li><span class="avatar"></span> #dannier</li>
+            </ul>
+        </div>
+    </div>
+    <div class="overlay" onclick="hideProfilePopup()"></div>
+    <div class="profile-popup" id="profilePopup">
+        <h2>Editar Perfil</h2>
+        <input type="text" id="usernameInput" placeholder="Nombre de usuario">
+        <input type="file" id="avatarInput" accept="image/*">
+        <div class="preview" id="avatarPreview"></div>
+        <button onclick="saveProfile()">Guardar</button>
+        <button onclick="hideProfilePopup()">Cancelar</button>
+    </div>
+
+    <script>
+        // Load saved data from localStorage
+        let user = JSON.parse(localStorage.getItem('user')) || { name: 'Tú', avatar: null };
+        let messages = JSON.parse(localStorage.getItem('messages')) || [];
+
+        function showProfilePopup() {
+            document.getElementById('profilePopup').style.display = 'block';
+            document.querySelector('.overlay').style.display = 'block';
+            document.getElementById('usernameInput').value = user.name;
+            if (user.avatar) {
+                document.getElementById('avatarPreview').style.backgroundImage = `url(${user.avatar})`;
+            } else {
+                document.getElementById('avatarPreview').style.backgroundImage = '';
+            }
+        }
+
+        function hideProfilePopup() {
+            document.getElementById('profilePopup').style.display = 'none';
+            document.querySelector('.overlay').style.display = 'none';
+        }
+
+        function saveProfile() {
+            const newName = document.getElementById('usernameInput').value.trim() || 'Tú';
+            const fileInput = document.getElementById('avatarInput');
+            if (fileInput.files && fileInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    user.avatar = e.target.result; // Store as data URL
+                    document.getElementById('avatarPreview').style.backgroundImage = `url(${user.avatar})`;
+                    localStorage.setItem('user', JSON.stringify(user));
+                    updateUserDisplay();
+                };
+                reader.readAsDataURL(fileInput.files[0]);
+            }
+            user.name = newName;
+            localStorage.setItem('user', JSON.stringify(user));
+            updateUserDisplay();
+            hideProfilePopup();
+        }
+
+        function updateUserDisplay() {
+            // Update profile icon in top-nav
+            const profileIcon = document.querySelector('.profile-icon');
+            if (user.avatar) {
+                profileIcon.innerHTML = `<img src="${user.avatar}" alt="Profile" style="width: 18px; height: 18px; border-radius: 50%;">`;
+            } else {
+                profileIcon.textContent = '👤';
+            }
+            // Update messages with user's name and avatar
+            const messages = document.querySelectorAll('.message:not(.moderation):not(.deleted)');
+            messages.forEach(msg => {
+                const userInfo = msg.querySelector('.user-info');
+                if (userInfo) {
+                    userInfo.querySelector('.user').textContent = user.name;
+                    const avatar = userInfo.querySelector('.avatar');
+                    if (user.avatar) {
+                        avatar.style.backgroundImage = `url(${user.avatar})`;
+                        avatar.style.backgroundColor = 'transparent';
+                    } else {
+                        avatar.style.backgroundImage = '';
+                        avatar.style.backgroundColor = '#444';
+                    }
+                }
+            });
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            if (message) {
+                const chatArea = document.getElementById('chatArea');
+                const newMessage = document.createElement('div');
+                newMessage.className = 'message';
+                const time = new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+                newMessage.innerHTML = `
+                    <div class="user-info">
+                        <span class="avatar" style="${user.avatar ? `background-image: url(${user.avatar}); background-color: transparent;` : 'background-color: #444;'}"></span>
+                        <span class="user" onclick="showProfilePopup()">${user.name}</span>
+                    </div>
+                    ${message} <span class="time">(${time})</span>
+                `;
+                chatArea.appendChild(newMessage);
+                input.value = '';
+                chatArea.scrollTop = chatArea.scrollHeight;
+
+                // Save message to localStorage
+                messages.push({ user: user.name, avatar: user.avatar, text: message, time });
+                localStorage.setItem('messages', JSON.stringify(messages));
+            }
+        }
+
+        // Load messages from localStorage on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            updateUserDisplay();
+            messages.forEach(msg => {
+                const chatArea = document.getElementById('chatArea');
+                const newMessage = document.createElement('div');
+                newMessage.className = 'message';
+                newMessage.innerHTML = `
+                    <div class="user-info">
+                        <span class="avatar" style="${msg.avatar ? `background-image: url(${msg.avatar}); background-color: transparent;` : 'background-color: #444;'}"></span>
+                        <span class="user" onclick="showProfilePopup()">${msg.user}</span>
+                    </div>
+                    ${msg.text} <span class="time">(${msg.time})</span>
+                `;
+                chatArea.appendChild(newMessage);
+            });
+            chatArea.scrollTop = chatArea.scrollHeight;
+        });
+
+        document.getElementById('messageInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        const sidebarItems = document.querySelectorAll('.sidebar li');
+        sidebarItems.forEach(item => {
+            item.addEventListener('click', function() {
+                sidebarItems.forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        const chatArea = document.getElementById('chatArea');
+        chatArea.addEventListener('scroll', () => {
+            if (chatArea.scrollTop < 20) {
+                const newMessage = document.createElement('div');
+                newMessage.className = 'message';
+                newMessage.textContent = 'Mensaje cargado...';
+                chatArea.insertBefore(newMessage, chatArea.firstChild);
+            }
+        });
+
+        // Handle avatar preview
+        document.getElementById('avatarInput').addEventListener('change', function(e) {
+            if (e.target.files && e.target.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('avatarPreview').style.backgroundImage = `url(${e.target.result})`;
+                };
+                reader.readAsDataURL(e.target.files[0]);
+            }
+        });
+    </script>
+</body>
+</html>
